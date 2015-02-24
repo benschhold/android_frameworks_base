@@ -3740,6 +3740,12 @@ public final class Settings {
         public static final String DISABLE_SETTINGS_SUGGESTIONS = "disable_settings_suggestions";
 
         /**
+         * Statusbar crDroid logo
+         * @hide
+         */
+        public static final String STATUS_BAR_CRDROID_LOGO = "status_bar_crdroid_logo";
+
+        /**
          * Remove tile summaries in settings
          * @hide
          */
