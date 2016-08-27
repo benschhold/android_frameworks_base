@@ -17,7 +17,11 @@
 
 <!-- Colors specific to pixel theme. -->
 <resources>
-    
+    <color name="resolver_list_bg">@color/white</color>
+    <color name="immersive_cling_bg_color">#ff009688</color>
+    <color name="immersive_cling_text_color">@color/primary_text_default_material_light</color>
+    <color name="immersive_cling_button_text_color">@android:color/white</color>
+	<color name="app_permission_icon_tint">@android:color/black</color>
     <!-- Pixel theme main colors -->
     <color name="material_pixel_primary_dark_material_dark">#242424</color><!--Pixel Statusbar Color-->
     <color name="material_pixel_blue_dark">#2D2D2D</color><!-- Pixel Primary Color-->
@@ -26,4 +30,7 @@
 
     <!-- Dynamic Navbar -->
     <color name="input_method_navigation_guard_dynamic">#00000000</color>
+
+    <color name="notification_text_default_color">@android:color/notification_default_color</color>
+    <color name="sender_text_color">@android:color/black</color>
 </resources>
