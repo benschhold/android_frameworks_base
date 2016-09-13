@@ -3740,6 +3740,12 @@ public final class Settings {
         public static final String DISABLE_SETTINGS_SUGGESTIONS = "disable_settings_suggestions";
 
         /**
+         * Remove tile summaries in settings
+         * @hide
+         */
+        public static final String REMOVE_SETTINGS_SUMMARY = "remove_settings_summary";
+
+        /**
          * Whether navigation bar is enabled or not
          * @hide
          */
