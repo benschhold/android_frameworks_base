@@ -471,7 +471,7 @@ public class TileAdapter extends RecyclerView.Adapter<Holder> implements TileSta
     private final OmniSpanSizeLookup mSizeLookup = new OmniSpanSizeLookup();
 
     private class TileItemDecoration extends ItemDecoration {
-        private final ColorDrawable mDrawable;
+        private ColorDrawable mDrawable = new ColorDrawable();
 
         private TileItemDecoration(Context context) {
             TypedArray ta =
