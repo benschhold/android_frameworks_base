@@ -16,6 +16,7 @@
 
 package com.android.systemui.statusbar.phone;
 
+
 import static com.android.systemui.settings.BrightnessController.BRIGHTNESS_ADJ_RESOLUTION;
 
 import android.animation.Animator;
@@ -400,12 +401,14 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     // carrier label
     private TextView mCarrierLabel;
     private boolean mShowCarrierInPanel = false;
+    boolean mExpandedVisible;
 
     // crDroid logo
-    private boolean mCrdroidLogo;
-    private ImageView crdroidLogo;
-
-    boolean mExpandedVisible;
+    private boolean mCrDroidLogo;
+    private int mCrDroidLogoColor;
+    private ImageView mCrDroidLogoRight;
+    private ImageView mCrDroidLogoLeft;
+    private int mCrDroidLogoStyle;
 
     private int mMaxKeyguardNotifConfig;
     private boolean mCustomMaxKeyguard;
@@ -466,6 +469,8 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         }
     };
 
+    private SettingsObserver mSettingsObserver;
+
     class SettingsObserver extends UserContentObserver {
         SettingsObserver(Handler handler) {
             super(handler);
@@ -492,6 +497,12 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.STATUS_BAR_CRDROID_LOGO),
                     false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_CRDROID_LOGO_COLOR),
+                    false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_CRDROID_LOGO_STYLE),
+                    false, this, UserHandle.USER_ALL);
             update();
         }
 
@@ -504,6 +515,11 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             if (uri.equals(Settings.System.getUriFor(
                     Settings.System.NAVIGATION_BAR_SHOW))) {
                 updateNavigationBarVisibility();
+            } else if (uri.equals(Settings.System.getUriFor(
+                    Settings.System.STATUS_BAR_CRDROID_LOGO_STYLE))) {
+                if (mIconController != null) {
+                    mIconController.onDensityOrFontScaleChanged();
+                }
             }
         }
 
@@ -532,12 +548,19 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                 mNavigationBarView.setLeftInLandscape(navLeftInLandscape);
             }
 
+            mCrDroidLogoStyle = Settings.System.getIntForUser(
+                    resolver, Settings.System.STATUS_BAR_CRDROID_LOGO_STYLE, 0,
+                    UserHandle.USER_CURRENT);
+            mCrDroidLogo = Settings.System.getIntForUser(resolver,
+                    Settings.System.STATUS_BAR_CRDROID_LOGO, 0, mCurrentUserId) == 1;
+            mCrDroidLogoColor = Settings.System.getIntForUser(resolver,
+                    Settings.System.STATUS_BAR_CRDROID_LOGO_COLOR, 0xFFFFFFFF, mCurrentUserId);
+            mCrDroidLogoLeft = (ImageView) mStatusBarView.findViewById(R.id.left_crdroid_logo);
+            mCrDroidLogoRight = (ImageView) mStatusBarView.findViewById(R.id.crdroid_logo);
+            showCrDroidLogo(mCrDroidLogo, mCrDroidLogoColor, mCrDroidLogoStyle);
+
             mMaxKeyguardNotifConfig = Settings.System.getIntForUser(resolver,
                     Settings.System.LOCKSCREEN_MAX_NOTIF_CONFIG, 5, mCurrentUserId);
-
-            mCrdroidLogo = Settings.System.getIntForUser(resolver,
-                    Settings.System.STATUS_BAR_CRDROID_LOGO, 0, mCurrentUserId) == 1;
-            showCrdroidLogo(mCrdroidLogo);
         }
     }
 
@@ -888,8 +911,10 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             // no window manager? good luck with that
         }
 
-        SettingsObserver observer = new SettingsObserver(mHandler);
-        observer.observe();
+        if (mSettingsObserver == null) {
+            mSettingsObserver = new SettingsObserver(new Handler());
+        }
+        mSettingsObserver.observe();
 
         // Lastly, call to the icon policy to install/update all the icons.
         mIconPolicy = new PhoneStatusBarPolicy(mContext, mIconController, mCastController,
@@ -3787,6 +3812,29 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         }, cancelAction, afterKeyguardGone);
     }
 
+    public void showCrDroidLogo(boolean show, int color, int style) {
+        if (mStatusBarView == null) return;
+        if (!show) {
+            mCrDroidLogoRight.setVisibility(View.GONE);
+            mCrDroidLogoLeft.setVisibility(View.GONE);
+            return;
+        }
+        if (color != 0xFFFFFFFF) {
+            mCrDroidLogoRight.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+            mCrDroidLogoLeft.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+        } else {
+            mCrDroidLogoRight.clearColorFilter();
+            mCrDroidLogoLeft.clearColorFilter();
+        }
+        if (style == 0) {
+            mCrDroidLogoRight.setVisibility(View.GONE);
+            mCrDroidLogoLeft.setVisibility(View.VISIBLE);
+        } else {
+            mCrDroidLogoLeft.setVisibility(View.GONE);
+            mCrDroidLogoRight.setVisibility(View.VISIBLE);
+        }
+    }
+
     private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             if (DEBUG) Log.v(TAG, "onReceive: " + intent);
@@ -3865,15 +3913,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         }
     }
 
-    public void showCrdroidLogo(boolean show) {
-        if (mStatusBarView == null) return;
-        ContentResolver resolver = mContext.getContentResolver();
-        crdroidLogo = (ImageView) mStatusBarView.findViewById(R.id.crdroid_logo);
-        if (crdroidLogo != null) {
-            crdroidLogo.setVisibility(show ? (mCrdroidLogo ? View.VISIBLE : View.GONE) : View.GONE);
-        }
-    }
-
     @Override
     protected void dismissKeyguardThenExecute(OnDismissAction action, boolean afterKeyguardGone) {
         dismissKeyguardThenExecute(action, null /* cancelRunnable */, afterKeyguardGone);
@@ -3948,15 +3987,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
      * should, but getting that smooth is tough.  Someday we'll fix that.  In the
      * meantime, just update the things that we know change.
      */
-
     void updateResources() {
-        ContentResolver resolver = mContext.getContentResolver();
-
-        // detect crDroid logo state when theme change.
-           mCrdroidLogo = Settings.System.getInt(
-               resolver, Settings.System.STATUS_BAR_CRDROID_LOGO, 0) == 1;
-           showCrdroidLogo(mCrdroidLogo);
-
         // Update the quick setting tiles
         if (mQSPanel != null) {
             mQSPanel.updateResources();
