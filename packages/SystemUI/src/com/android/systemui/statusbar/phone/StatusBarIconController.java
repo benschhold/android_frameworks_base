@@ -338,8 +338,10 @@ public class StatusBarIconController extends StatusBarIconList implements Tunabl
     public void hideSystemIconArea(boolean animate) {
         animateHide(mSystemIconArea, animate);
         animateHide(mCenterClockLayout, animate);
-        if (Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.STATUS_BAR_CRDROID_LOGO, 0) == 1) {
+        if ((Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.STATUS_BAR_CRDROID_LOGO, 0) == 1) &&
+                (Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.STATUS_BAR_CRDROID_LOGO_STYLE, 0) == 0)) {
             animateHide(mCrDroidLogoLeft, animate);
         }
     }
@@ -347,8 +349,10 @@ public class StatusBarIconController extends StatusBarIconList implements Tunabl
     public void showSystemIconArea(boolean animate) {
         animateShow(mSystemIconArea, animate);
         animateShow(mCenterClockLayout, animate);
-        if (Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.STATUS_BAR_CRDROID_LOGO, 0) == 1) {
+        if ((Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.STATUS_BAR_CRDROID_LOGO, 0) == 1) &&
+                (Settings.System.getInt(mContext.getContentResolver(),
+                Settings.System.STATUS_BAR_CRDROID_LOGO_STYLE, 0) == 0)) {
             animateShow(mCrDroidLogoLeft, animate);
         }
     }

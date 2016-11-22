@@ -5606,9 +5606,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                 mCrDroidLogoStyle =
                         newValue == null ? 0 : Integer.parseInt(newValue);
                 showCrDroidLogo(mCrDroidLogo, mCrDroidLogoColor, mCrDroidLogoStyle);
-                if (mIconController != null) {
-                    mIconController.onDensityOrFontScaleChanged();
-                }
                 break;
             case STATUS_BAR_CRDROID_LOGO:
                 mCrDroidLogo = newValue != null && Integer.parseInt(newValue) == 1;
