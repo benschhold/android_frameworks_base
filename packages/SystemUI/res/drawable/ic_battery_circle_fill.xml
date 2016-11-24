@@ -20,14 +20,11 @@
     android:viewportWidth="24"
     android:viewportHeight="24">
 
-    <clip-path
-        android:name="mask"
-        android:pathData="@string/battery_circle_full" />
-
     <!-- Path will be tinted based on battery level -->
     <path
         android:name="battery_level"
-        android:fillColor="#000000"
-        android:strokeWidth="1"
-        android:pathData="@string/battery_circle_empty" />
+        android:strokeColor="#000000"
+        android:strokeLineJoin="round"
+        android:strokeWidth="3"
+        android:pathData="@string/battery_circle_path" />
 </vector>
